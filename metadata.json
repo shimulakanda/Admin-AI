@@ -1,0 +1,8 @@
+{
+  "name": "Copy of Admin AI",
+  "description": "An enterprise-grade AI-powered platform for university coordination, document automation, and issue management.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": []
+}
