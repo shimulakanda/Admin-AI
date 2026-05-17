@@ -123,7 +123,7 @@ const TicketTracker: React.FC<TicketTrackerProps> = ({ tickets, addTicket, updat
     try {
       const suggestion = await suggestResolution(ticket.category, ticket.description);
       setAiSuggestions(suggestion);
-    } catch (e) { alert("Error getting suggestions"); }
+    } catch (e) { alert(e instanceof Error ? e.message : "Error getting suggestions."); }
     finally { setIsSuggesting(false); }
   };
 

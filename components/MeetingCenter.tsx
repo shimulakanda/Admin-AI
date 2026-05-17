@@ -108,7 +108,7 @@ const MeetingCenter: React.FC<MeetingCenterProps> = ({ meetings, addMeeting, upd
       const update = { minutes: summary, status: 'COMPLETED' as const };
       updateMeeting(selectedMeeting.id, update);
       setSelectedMeeting({ ...selectedMeeting, ...update });
-    } catch (e) { alert("Error generating minutes."); }
+    } catch (e) { alert(e instanceof Error ? e.message : "Error generating minutes."); }
     finally { setIsSummarizing(false); }
   };
 

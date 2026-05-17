@@ -68,7 +68,7 @@ const DocumentManager: React.FC<DocumentManagerProps> = ({ documents, addDocumen
       if (result.subject) setFormSubject(result.subject);
       if (result.body) setFormBody(result.body);
     } catch (error) {
-      alert("AI Service busy. Please try manual entry.");
+      alert(error instanceof Error ? error.message : "AI Service Error: " + String(error));
     } finally {
       setIsGeneratingAll(false);
     }

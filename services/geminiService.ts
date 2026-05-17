@@ -6,7 +6,7 @@ let _ai: GoogleGenAI | null = null;
 
 const getAi = () => {
   if (!_ai) {
-    const key = process.env.API_KEY || "";
+    const key = import.meta.env.VITE_API_KEY || "AIzaSyB_O2fymGp0HWNbULHkqZkU17lox8Ucn5E";
     // Initialize even with an empty key to prevent module load crash,
     // though the actual API call will fail if the key is empty.
     _ai = new GoogleGenAI({ apiKey: key });
@@ -73,7 +73,7 @@ FORMATTING PATTERNS:
 `;
 
 export const generateFullDocument = async (type: DocType, prompt: string, context: string) => {
-  const model = 'gemini-3-pro-preview';
+  const model = 'gemini-3-flash-preview';
   const systemInstruction = `You are an expert Admin AI assistant for Daffodil International University (DIU).
   ${DIU_CONTEXT}
   
@@ -104,7 +104,7 @@ export const generateFullDocument = async (type: DocType, prompt: string, contex
 };
 
 export const generateDraft = async (type: DocType, prompt: string, context: string) => {
-  const model = 'gemini-3-pro-preview';
+  const model = 'gemini-3-flash-preview';
   const systemInstruction = `You are an expert Admin AI assistant for Daffodil International University (DIU).
   ${DIU_CONTEXT}
   
@@ -139,7 +139,7 @@ export const suggestResolution = async (category: TicketCategory, description: s
 };
 
 export const summarizeMeeting = async (notes: string) => {
-  const model = 'gemini-3-pro-preview';
+  const model = 'gemini-3-flash-preview';
   const response = await getAi().models.generateContent({
     model,
     contents: `Convert these DIU departmental meeting notes into professional university meeting minutes:
