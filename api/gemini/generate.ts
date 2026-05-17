@@ -6,9 +6,12 @@ export default async function handler(req: any, res: any) {
   }
 
   // To support both local preview processes AND Vercel deployment cleanly
-  const key = process.env.GEMINI_API_KEY;
+  const key = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
   if (!key) {
-    return res.status(500).json({ error: "GEMINI_API_KEY is missing. If you just added it in Vercel settings, you MUST go to the Deployments tab and click 'Redeploy' for the changes to take effect." });
+    const envKeys = Object.keys(process.env).filter(k => k.toLowerCase().includes('gemini') || k.toLowerCase().includes('api') || k.toLowerCase().includes('key'));
+    return res.status(500).json({ 
+      error: `API Key missing! If you set it in Vercel, ensure you checked the "Preview" AND "Production" checkboxes. Similar keys found: [${envKeys.join(', ')}]. Please edit the variable in Vercel settings, check all environments, save, and REDEPLOY.` 
+    });
   }
 
   try {

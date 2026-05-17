@@ -7,9 +7,9 @@ import bodyParser from "body-parser";
 let aiClient: GoogleGenAI | null = null;
 const getAi = () => {
   if (!aiClient) {
-    const key = process.env.GEMINI_API_KEY;
+    const key = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
     if (!key) {
-      throw new Error("GEMINI_API_KEY environment variable is required");
+      throw new Error(`API Key missing! If you set it in Vercel, ensure you checked the "Preview" AND "Production" checkboxes. Please edit the variable in Vercel settings, check all environments, save, and REDEPLOY.`);
     }
     aiClient = new GoogleGenAI({ apiKey: key });
   }
