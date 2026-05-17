@@ -91,7 +91,7 @@ FORMATTING PATTERNS:
 `;
 
 export const generateFullDocument = async (type: DocType, prompt: string, context: string) => {
-  const model = 'gemini-3-flash-preview';
+  const model = 'gemini-2.5-flash';
   const systemInstruction = `You are an expert Admin AI assistant for Daffodil International University (DIU).
   ${DIU_CONTEXT}
   
@@ -128,7 +128,7 @@ export const generateFullDocument = async (type: DocType, prompt: string, contex
 };
 
 export const generateDraft = async (type: DocType, prompt: string, context: string) => {
-  const model = 'gemini-3-flash-preview';
+  const model = 'gemini-2.5-flash';
   const systemInstruction = `You are an expert Admin AI assistant for Daffodil International University (DIU).
   ${DIU_CONTEXT}
   
@@ -150,7 +150,7 @@ export const generateDraft = async (type: DocType, prompt: string, context: stri
 };
 
 export const suggestResolution = async (category: TicketCategory, description: string) => {
-  const model = 'gemini-3-flash-preview';
+  const model = 'gemini-2.5-flash';
   const response = await generateViaProxy(
     model,
     `Suggest 3-5 clear resolution steps for the following DIU university issue:
@@ -163,7 +163,7 @@ export const suggestResolution = async (category: TicketCategory, description: s
 };
 
 export const summarizeMeeting = async (notes: string) => {
-  const model = 'gemini-3-flash-preview';
+  const model = 'gemini-2.5-flash';
   const response = await generateViaProxy(
     model,
     `Convert these DIU departmental meeting notes into professional university meeting minutes:
@@ -175,7 +175,7 @@ export const summarizeMeeting = async (notes: string) => {
 };
 
 export const extractMetadata = async (base64Image: string) => {
-  const model = 'gemini-3-flash-preview';
+  const model = 'gemini-2.5-flash';
   const response = await generateViaProxy(
     model,
     {
