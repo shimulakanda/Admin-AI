@@ -4,7 +4,17 @@ import { createServer as createViteServer } from "vite";
 import { GoogleGenAI, Type } from "@google/genai";
 import bodyParser from "body-parser";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+let aiClient: GoogleGenAI | null = null;
+const getAi = () => {
+  if (!aiClient) {
+    const key = process.env.GEMINI_API_KEY;
+    if (!key) {
+      throw new Error("GEMINI_API_KEY environment variable is required");
+    }
+    aiClient = new GoogleGenAI({ apiKey: key });
+  }
+  return aiClient;
+};
 
 async function startServer() {
   const app = express();
@@ -15,6 +25,7 @@ async function startServer() {
   // API router
   app.post("/api/gemini/generate", async (req, res) => {
     try {
+      const ai = getAi();
       const { model, contents, config } = req.body;
       const response = await ai.models.generateContent({
         model,

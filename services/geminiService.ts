@@ -9,12 +9,26 @@ const generateViaProxy = async (model: string, contents: any, config?: any) => {
     body: JSON.stringify({ model, contents, config })
   });
 
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.error || "Failed to communicate with AI Service");
+  const text = await response.text();
+  let data: any;
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch (e) {
+    throw new Error(`Server returned invalid JSON (${response.status}): ${text.substring(0, 200)}`);
   }
 
-  const data = await response.json();
+  if (!response.ok) {
+    let errMsg = data.error || "Failed to communicate with AI Service";
+    // If the error message is itself a JSON string (like from googleapis), parse it to get the inner message
+    try {
+      const innerErr = JSON.parse(errMsg);
+      if (innerErr && innerErr.error && innerErr.error.message) {
+        errMsg = innerErr.error.message;
+      }
+    } catch (e) {}
+    throw new Error(errMsg);
+  }
+
   return data;
 };
 
@@ -105,7 +119,12 @@ export const generateFullDocument = async (type: DocType, prompt: string, contex
     }
   );
 
-  return JSON.parse(response.text || "{}");
+  try {
+    return JSON.parse(response.text || "{}");
+  } catch (error) {
+    console.error("Failed to parse Gemini output:", response.text);
+    throw new Error("AI returned invalid or incomplete format. Please try again.");
+  }
 };
 
 export const generateDraft = async (type: DocType, prompt: string, context: string) => {
@@ -180,5 +199,10 @@ export const extractMetadata = async (base64Image: string) => {
     }
   );
 
-  return JSON.parse(response.text || "{}");
+  try {
+    return JSON.parse(response.text || "{}");
+  } catch (error) {
+    console.error("Failed to parse Gemini output:", response.text);
+    throw new Error("AI returned invalid or incomplete metadata format. Please try again.");
+  }
 };
