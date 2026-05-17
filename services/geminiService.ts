@@ -81,8 +81,9 @@ export const generateFullDocument = async (type: DocType, prompt: string, contex
   
   CRITICAL: 
   - strictly adhere to the DIU formatting patterns provided.
-  - The "subject" field should contain ONLY a concise single-line subject, no "Subject:" prefix.
-  - The "body" field should contain the full, formal written document content WITHOUT the subject line. Treat it as the main letter or notice text.`;
+  - The "subject" field should contain ONLY a concise single-line subject, no "Subject:" prefix. This will be used as the internal title.
+  - The "body" field should contain the full, formal written document content. For Formal Applications, you MUST include the "Subject: ..." line within this body text in its proper place before the salutation.
+  - Use markdown for tables if required.`;
 
   const response = await getAi().models.generateContent({
     model,
@@ -94,7 +95,7 @@ export const generateFullDocument = async (type: DocType, prompt: string, contex
         type: Type.OBJECT,
         properties: {
           subject: { type: Type.STRING, description: "A concise single-line subject header, excluding any 'Subject:' prefix." },
-          body: { type: Type.STRING, description: "The full formal narrative or document body, excluding the subject header." }
+          body: { type: Type.STRING, description: "The full formal narrative or document body. Include the 'Subject: ...' line inside this body if it is an application." }
         }
       }
     }

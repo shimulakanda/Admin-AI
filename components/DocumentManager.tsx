@@ -1,5 +1,8 @@
 
 import React, { useState, useMemo } from 'react';
+import Markdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import remarkBreaks from 'remark-breaks';
 import { 
   FileText, Megaphone, Mail, ClipboardCheck, Plus, Search, 
   Sparkles, Trash2, Edit, UploadCloud, Info, 
@@ -585,8 +588,8 @@ const DocumentManager: React.FC<DocumentManagerProps> = ({ documents, addDocumen
                    </div>
                  </div>
                )}
-               <div className="font-serif text-[14pt] leading-[2] text-slate-800 dark:text-slate-200 whitespace-pre-wrap">
-                 {viewingDoc.content}
+               <div className="markdown-body font-serif text-[14pt] leading-[2] text-slate-800 dark:text-slate-200 [&>table]:w-full [&>table]:border-collapse [&_th]:border [&_th]:border-slate-300 [&_th]:p-2 [&_td]:border [&_td]:border-slate-300 [&_td]:p-2">
+                 <Markdown remarkPlugins={[remarkGfm, remarkBreaks]}>{viewingDoc.content}</Markdown>
                </div>
             </div>
             <div className="p-10 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
