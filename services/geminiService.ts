@@ -1,17 +1,21 @@
 
-import { GoogleGenAI, Type } from "@google/genai";
+import { Type } from "@google/genai";
 import { DocType, TicketCategory } from "../types";
 
-let _ai: GoogleGenAI | null = null;
+const generateViaProxy = async (model: string, contents: any, config?: any) => {
+  const response = await fetch("/api/gemini/generate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ model, contents, config })
+  });
 
-const getAi = () => {
-  if (!_ai) {
-    const key = import.meta.env.VITE_API_KEY || "AIzaSyB_O2fymGp0HWNbULHkqZkU17lox8Ucn5E";
-    // Initialize even with an empty key to prevent module load crash,
-    // though the actual API call will fail if the key is empty.
-    _ai = new GoogleGenAI({ apiKey: key });
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || "Failed to communicate with AI Service");
   }
-  return _ai;
+
+  const data = await response.json();
+  return data;
 };
 
 const DIU_CONTEXT = `
@@ -85,10 +89,10 @@ export const generateFullDocument = async (type: DocType, prompt: string, contex
   - The "body" field should contain the full, formal written document content. For Formal Applications, you MUST include the "Subject: ..." line within this body text in its proper place before the salutation.
   - Use markdown for tables if required.`;
 
-  const response = await getAi().models.generateContent({
+  const response = await generateViaProxy(
     model,
-    contents: `Generate a distinct subject and body of a document based on the following instructions: ${prompt}`,
-    config: { 
+    `Generate a distinct subject and body of a document based on the following instructions: ${prompt}`,
+    { 
       systemInstruction,
       responseMimeType: "application/json",
       responseSchema: {
@@ -99,7 +103,7 @@ export const generateFullDocument = async (type: DocType, prompt: string, contex
         }
       }
     }
-  });
+  );
 
   return JSON.parse(response.text || "{}");
 };
@@ -117,51 +121,51 @@ export const generateDraft = async (type: DocType, prompt: string, context: stri
   - If a table is needed for courses or students, always use a clean Markdown table.
   - The signature must be professional and include the requested contact details.`;
 
-  const response = await getAi().models.generateContent({
+  const response = await generateViaProxy(
     model,
-    contents: prompt,
-    config: { systemInstruction }
-  });
+    prompt,
+    { systemInstruction }
+  );
 
   return response.text || "Failed to generate draft.";
 };
 
 export const suggestResolution = async (category: TicketCategory, description: string) => {
   const model = 'gemini-3-flash-preview';
-  const response = await getAi().models.generateContent({
+  const response = await generateViaProxy(
     model,
-    contents: `Suggest 3-5 clear resolution steps for the following DIU university issue:
+    `Suggest 3-5 clear resolution steps for the following DIU university issue:
     Category: ${category}
     Issue: ${description}
-    Return the response as a clear, numbered list.`,
-  });
+    Return the response as a clear, numbered list.`
+  );
 
   return response.text || "No suggestions available.";
 };
 
 export const summarizeMeeting = async (notes: string) => {
   const model = 'gemini-3-flash-preview';
-  const response = await getAi().models.generateContent({
+  const response = await generateViaProxy(
     model,
-    contents: `Convert these DIU departmental meeting notes into professional university meeting minutes:
+    `Convert these DIU departmental meeting notes into professional university meeting minutes:
     ${notes}
-    Include sections for: Attendees, Key Discussion Points, Decisions Made, and Action Items.`,
-  });
+    Include sections for: Attendees, Key Discussion Points, Decisions Made, and Action Items.`
+  );
 
   return response.text || "Failed to summarize.";
 };
 
 export const extractMetadata = async (base64Image: string) => {
   const model = 'gemini-3-flash-preview';
-  const response = await getAi().models.generateContent({
+  const response = await generateViaProxy(
     model,
-    contents: {
+    {
       parts: [
         { inlineData: { mimeType: 'image/jpeg', data: base64Image } },
         { text: "Extract metadata from this DIU document: Name, ID, Department, Date, Ref No. Format as JSON." }
       ]
     },
-    config: {
+    {
       responseMimeType: "application/json",
       responseSchema: {
         type: Type.OBJECT,
@@ -174,7 +178,7 @@ export const extractMetadata = async (base64Image: string) => {
         }
       }
     }
-  });
+  );
 
   return JSON.parse(response.text || "{}");
 };
