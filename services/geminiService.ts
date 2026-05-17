@@ -2,8 +2,17 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { DocType, TicketCategory } from "../types";
 
-// Always use const ai = new GoogleGenAI({apiKey: process.env.API_KEY});
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+let _ai: GoogleGenAI | null = null;
+
+const getAi = () => {
+  if (!_ai) {
+    const key = process.env.API_KEY || "";
+    // Initialize even with an empty key to prevent module load crash,
+    // though the actual API call will fail if the key is empty.
+    _ai = new GoogleGenAI({ apiKey: key });
+  }
+  return _ai;
+};
 
 const DIU_CONTEXT = `
 Institution: Daffodil International University (DIU)
@@ -75,7 +84,7 @@ export const generateFullDocument = async (type: DocType, prompt: string, contex
   - The "subject" field should contain ONLY a concise single-line subject, no "Subject:" prefix.
   - The "body" field should contain the full, formal written document content WITHOUT the subject line. Treat it as the main letter or notice text.`;
 
-  const response = await ai.models.generateContent({
+  const response = await getAi().models.generateContent({
     model,
     contents: `Generate a distinct subject and body of a document based on the following instructions: ${prompt}`,
     config: { 
@@ -107,7 +116,7 @@ export const generateDraft = async (type: DocType, prompt: string, context: stri
   - If a table is needed for courses or students, always use a clean Markdown table.
   - The signature must be professional and include the requested contact details.`;
 
-  const response = await ai.models.generateContent({
+  const response = await getAi().models.generateContent({
     model,
     contents: prompt,
     config: { systemInstruction }
@@ -118,7 +127,7 @@ export const generateDraft = async (type: DocType, prompt: string, context: stri
 
 export const suggestResolution = async (category: TicketCategory, description: string) => {
   const model = 'gemini-3-flash-preview';
-  const response = await ai.models.generateContent({
+  const response = await getAi().models.generateContent({
     model,
     contents: `Suggest 3-5 clear resolution steps for the following DIU university issue:
     Category: ${category}
@@ -131,7 +140,7 @@ export const suggestResolution = async (category: TicketCategory, description: s
 
 export const summarizeMeeting = async (notes: string) => {
   const model = 'gemini-3-pro-preview';
-  const response = await ai.models.generateContent({
+  const response = await getAi().models.generateContent({
     model,
     contents: `Convert these DIU departmental meeting notes into professional university meeting minutes:
     ${notes}
@@ -143,7 +152,7 @@ export const summarizeMeeting = async (notes: string) => {
 
 export const extractMetadata = async (base64Image: string) => {
   const model = 'gemini-3-flash-preview';
-  const response = await ai.models.generateContent({
+  const response = await getAi().models.generateContent({
     model,
     contents: {
       parts: [
